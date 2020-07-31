@@ -1,4 +1,4 @@
-snare [![circleci](https://circleci.com/gh/GSA/ansible-snare.svg?style=svg)](https://circleci.com/gh/GSA/ansible-bigfix)
+snare [![circleci](https://circleci.com/gh/GSA/ansible-snare.svg?style=svg)](https://circleci.com/gh/GSA/ansible-snare)
 =========
 
 This ansible role installs and configures the snare agent required to communicate with client machines.
