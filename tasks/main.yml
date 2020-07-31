@@ -3,21 +3,25 @@
   win_file:
     path: '{{ win_agent_path }}'
     state: directory
+  when: ansible_os_family == 'Windows'
 
 - name: create {{ win_agent_logs }} directory
   win_file:
     path: '{{ win_agent_logs }}'
     state: directory
+  when: ansible_os_family == 'Windows'
 
 - name: checking for installer
   win_stat:
     path: '{{ win_agent_path }}{{ windows_snare_agent_filename }}'
   register: installer
+  when: ansible_os_family == 'Windows'
 
-- name: checking for actionsite.afxm
+- name: checking for configuration file
   win_stat:
     path: '{{ win_agent_path }}{{ snare_action_filename }}'
   register: actionsite
+  when: ansible_os_family == 'Windows'
 
 - name: move installer to {{ win_agent_path }} directory
   win_copy:
@@ -25,15 +29,15 @@
     dest: '{{ win_agent_path }}{{ item.name }}'
   with_items:
     - { name: '{{ windows_snare_agent_filename }}'}
-  when: not installer.stat.exists
+  when: not installer.stat.exists and ansible_os_family == 'Windows'
 
-- name: move actionsite.afxm to {{ win_agent_path }} directory
+- name: move snare.inf to {{ win_agent_path }} directory
   win_copy:
     src: '{{ lin_agent_path }}/{{ item.name }}'
     dest: '{{ win_agent_path }}{{ item.name }}'
   with_items:
     - { name: '{{ snare_action_filename }}'}
-  when: not actionsite.stat.exists
+  when: not actionsite.stat.exists and ansible_os_family == 'Windows'
 
 - name: install windows snare agent
   win_package:
@@ -50,3 +54,4 @@
     validate_certs: no
   with_items:
     - { name: '{{ windows_snare_agent_filename }}' }
+  when: ansible_os_family == 'Windows'
