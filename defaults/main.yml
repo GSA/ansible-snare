@@ -1,7 +1,11 @@
 ---
-win_agent_path: "C:\\Temp\\Agents\\" # default agent path directory windows
-lin_agent_path: "/opt/GSA/install_files" # default agent path directory redhat
-win_agent_logs: "C:\\Temp\\Agents\\Logs" # default agent log directory windows
-snare_action_filename: "snare.inf"
-windows_snare_agent_filename: "snare.exe"
-snare_product_id: "Snare_is1"
+# defaults file for ansible-snare
+
+#universal
+snare_agent_config_url: "" #default windows configuration artifactory url
+
+#windows
+windows_snare_agent_path: "C:\\Program Files\\Snare" # default windows install directory
+windows_snare_agent_url: "" # default windows agent artifactory url
+windows_snare_product_id: "" #  win_package using a url requires a product_id
+windows_agent_log: "C:\\Temp\\Logs" # default agent windows log directory

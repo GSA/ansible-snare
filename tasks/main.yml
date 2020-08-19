@@ -1,57 +1,47 @@
 ---
-- name: create {{ win_agent_path }} directory
+- name: checking for agent install
+  win_service:
+    name: 'Snare'
+  register: agent
+
+- debug:
+    msg: "snare agent not found (installing)"
+  when: not agent.exists
+
+- debug:
+    msg: "snare agent found (skipping install)"
+  when: agent.exists
+
+- name: create {{ windows_agent_log }} directory
   win_file:
-    path: '{{ win_agent_path }}'
+    path: '{{ windows_agent_log }}'
     state: directory
-  when: ansible_os_family == 'Windows'
+  when: not agent.exists
 
-- name: create {{ win_agent_logs }} directory
-  win_file:
-    path: '{{ win_agent_logs }}'
-    state: directory
-  when: ansible_os_family == 'Windows'
-
-- name: checking for installer
-  win_stat:
-    path: '{{ win_agent_path }}{{ windows_snare_agent_filename }}'
-  register: installer
-  when: ansible_os_family == 'Windows'
-
-- name: checking for configuration file
-  win_stat:
-    path: '{{ win_agent_path }}{{ snare_action_filename }}'
-  register: actionsite
-  when: ansible_os_family == 'Windows'
-
-- name: move installer to {{ win_agent_path }} directory
-  win_copy:
-    src: '{{ lin_agent_path }}/{{ item.name }}'
-    dest: '{{ win_agent_path }}{{ item.name }}'
-  with_items:
-    - { name: '{{ windows_snare_agent_filename }}'}
-  when: not installer.stat.exists and ansible_os_family == 'Windows'
-
-- name: move snare.inf to {{ win_agent_path }} directory
-  win_copy:
-    src: '{{ lin_agent_path }}/{{ item.name }}'
-    dest: '{{ win_agent_path }}{{ item.name }}'
-  with_items:
-    - { name: '{{ snare_action_filename }}'}
-  when: not actionsite.stat.exists and ansible_os_family == 'Windows'
+- name: copy snare.inf to {{ windows_snare_agent_path }} directory
+  win_get_url:
+    url: '{{ solarwinds_agent_config_url }}'
+    dest: '{{ windows_snare_agent_path }}\snare.inf'
+    timeout: 600
+  when: not agent.exists
 
 - name: install windows snare agent
   win_package:
-    path: '{{ agent_path }}\\{{ item.name }}'
-    chdir: '{{ agent_path }}'
-    product_id: '{{ snare_product_id }}'
+    path: '{{ windows_snare_agent_url }}'
+    chdir: '{{ windows_snare_agent_path }}'
+    product_id: '{{ windows_snare_product_id }}'
+    state: present
     arguments:
       - /reinstall
       - /verysilent
       - /suppressmsgboxes
       - /loadinf=snare.inf
-    state: present
-    log_path: '{{ agent_logs }}\\{{ item.name }}_log.txt'
-    validate_certs: no
-  with_items:
-    - { name: '{{ windows_snare_agent_filename }}' }
-  when: ansible_os_family == 'Windows'
+    log_path: '{{ windows_agent_log }}\snare_log.txt'
+  when: not agent.exists
+
+- name: verify snare started
+  win_service:
+    name: snare
+    enabled: yes
+    state: started
+    start_mode: auto
