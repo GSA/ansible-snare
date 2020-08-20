@@ -18,9 +18,15 @@
     state: directory
   when: not agent.exists
 
+- name: create {{ windows_snare_agent_path }} directory
+  win_file:
+    path: '{{ windows_snare_agent_path }}'
+    state: directory
+  when: not agent.exists
+
 - name: copy snare.inf to {{ windows_snare_agent_path }} directory
   win_get_url:
-    url: '{{ solarwinds_agent_config_url }}'
+    url: '{{ snare_agent_config_url }}'
     dest: '{{ windows_snare_agent_path }}\snare.inf'
     timeout: 600
   when: not agent.exists
@@ -41,7 +47,7 @@
 
 - name: verify snare started
   win_service:
-    name: snare
+    name: Snare
     enabled: yes
     state: started
     start_mode: auto
